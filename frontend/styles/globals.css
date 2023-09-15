@@ -1,6 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Play:wght@400;700&display=swap");
 /* @import '~bootstrap/scss/bootstrap'; */
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @property --rotate {
   syntax: "<angle>";
   initial-value: 132deg;
@@ -24,7 +28,7 @@
 
 body {
   min-height: 100vh;
-  background: whitesmoke;
+  background: black;
   display: flex;
   align-items: center;
   flex-direction: column;
