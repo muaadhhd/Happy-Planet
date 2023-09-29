@@ -1,15 +1,26 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+// import { NFTStorage, File } from "nft.storage";
+
+// import fs from "fs";
+// import path from "path";
+
 const FrontPage = () => {
+  //State constants
   const [message, setMessage] = useState("");
   const [description, setDescription] = useState("");
+  const [name, setName] = useState("");
   const [image, setImage] = useState<any | null>(null);
 
+  //uploading image constants
   const [uploading, setUploading] = useState(false);
   const [selectedImage, setSelectImage] = useState("");
   const [selectedFile, setSelectFile] = useState<File>();
 
+  const [mostRecentImage, setMostRecentImage] = useState("");
+
+  //Handles uploaded image
   const handleUpload = async () => {
     setUploading(true);
     try {
@@ -22,39 +33,50 @@ const FrontPage = () => {
       console.log(error.response?.data);
     }
     setUploading(false);
+    setMessage("Success");
   };
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (description === "") {
+    if (description === "" && name === "") {
       setMessage("Please provide a name and description");
       return;
     }
 
-    await createImage();
+    // Call AI API to generate a image based on description
+    const imageData = await createImage();
+
+    // Upload image to IPFS (NFT.Storage)
+    // const url = await uploadImage(imageData);
+
+    // Mint NFT
+    // await mintImage(url);
   };
 
+  //Generates Image with AI API
   const createImage = async () => {
     setMessage("Generating Image...");
 
-    const url = "http://127.0.0.1:12345";
+    const url = "http://sz.vansee.cn:19002/"; // port
 
-    const data = {
-      userimagepath: "../../userImage/NFT.png",
+    const metaData = {
+      // name: name,
       description: description,
+      image: mostRecentImage,
     };
 
+    //NEED HELP IN THIS AREA
     try {
       const response = await fetch(url, {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(metaData),
         headers: {
           "Content-Type": "application/json",
         },
       });
 
       if (response.status === 200) {
-        const resultData = await response.json();
+        const resultData = await response;
         setImage(resultData);
 
         setMessage("Image Generated Successfully");
@@ -67,6 +89,60 @@ const FrontPage = () => {
       setMessage("Image generation failed 2");
     }
   };
+
+  // Uploading Image to IPFS
+  // const uploadImage = async (imageData: any) => {
+  //   setMessage("Uploading Image...");
+
+  //   // Create instance to NFT.Storage
+  //   const nftstorage = new NFTStorage({
+  //     token: process.env.REACT_APP_NFT_STORAGE_API_KEY,
+  //   });
+  // };
+
+  // //Mint Image
+  // const mintImage = async (tokenURI) => {
+  //   setMessage("Waiting for Mint...");
+
+  //   //Gets signer
+  //   const signer = await provider.getSigner();
+
+  //   try {
+  //     //Minting
+  //     const transaction = await nft
+  //       .connect(signer)
+  //       .mint(tokenURI, { value: ethers.utils.parseEther("0.001") });
+
+  //     //waiting for transaction
+  //     await transaction.wait();
+  //     setIsWaiting(false);
+
+  //     //Getting NFT ID
+  //     const amount = await nft.totalSupply();
+  //     const result = parseInt(amount._hex).toString();
+  //     SetNFTID(result);
+  //   } catch (error) {
+  //     warning("Transaction Cancelled");
+  //     setIsWaiting(true);
+  //   }
+  //   setMessage("Transaction Cancelled");
+  // };
+
+  useEffect(() => {
+    //fetching data from API
+    async function fetchMostRecentImage() {
+      try {
+        const response = await fetch("/api/getMostRecentImage");
+        const data = await response.json();
+        setMostRecentImage(data.mostRecentImage);
+      } catch (error) {
+        console.error("Error fetching most recent image:", error);
+      }
+    }
+
+    fetchMostRecentImage();
+  }, []);
+
   return (
     <div className="max-w-4xl mx-auto p-20 space-y-6">
       <div className="form">
@@ -104,7 +180,15 @@ const FrontPage = () => {
 
           <input
             type="text"
-            placeholder="Create a description..."
+            placeholder="Create a Name..."
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Create a Description..."
+            value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
           <button className="homepage__btn" type="submit">
@@ -123,6 +207,7 @@ const FrontPage = () => {
         <div className="card">
           {image}
           {message}
+          {}
         </div>
       </div>
 
