@@ -17,7 +17,8 @@ const readFile = (
   if (saveLocally) {
     options.uploadDir = path.join(process.cwd(), "/userImage");
     options.filename = (name, ext, path, form) => {
-      return Date.now().toString() + "_" + path.originalFilename;
+      return path.originalFilename || "default";
+      // return Date.now().toString() + "_" + path.originalFilename;
     };
   }
   const form = formidable(options);

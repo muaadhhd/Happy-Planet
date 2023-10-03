@@ -56,15 +56,12 @@ const FrontPage = () => {
   //Generates Image with AI API
   const createImage = async () => {
     setMessage("Generating Image...");
-
-    const url = "http://127.0.0.1:12345/"; // port
+    const url = "http://127.0.0.1:12345";
 
     const data = {
-      // name: name,
       userimagepath: mostRecentImage,
       description: description,
     };
-
     //NEED HELP IN THIS AREA
     try {
       const response = await fetch(url, {
@@ -74,8 +71,6 @@ const FrontPage = () => {
           "Content-Type": "application/json",
         },
       });
-
-      console.log(`Yessir:${await response.status}`);
 
       if (response.status === 200) {
         const resultData = await response.json();
@@ -206,15 +201,11 @@ const FrontPage = () => {
           <br />
           <br />
         </form>
-        <div className="card">
-          {image}
-          {message}
-          {}
-        </div>
+        <div className="card">{message}</div>
       </div>
 
       {image && (
-        <div>
+        <div className="text-white">
           <br />
           <br />
           <br />
