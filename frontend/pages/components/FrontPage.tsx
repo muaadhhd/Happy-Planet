@@ -38,7 +38,7 @@ const FrontPage = () => {
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (description === "" && name === "") {
+    if (description === "") {
       setMessage("Please provide a name and description");
       return;
     }
@@ -57,26 +57,28 @@ const FrontPage = () => {
   const createImage = async () => {
     setMessage("Generating Image...");
 
-    const url = "http://sz.vansee.cn:19002/"; // port
+    const url = "http://127.0.0.1:12345/"; // port
 
-    const metaData = {
+    const data = {
       // name: name,
+      userimagepath: mostRecentImage,
       description: description,
-      image: mostRecentImage,
     };
 
     //NEED HELP IN THIS AREA
     try {
       const response = await fetch(url, {
         method: "POST",
-        body: JSON.stringify(metaData),
+        body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json",
         },
       });
 
+      console.log(`Yessir:${await response.status}`);
+
       if (response.status === 200) {
-        const resultData = await response;
+        const resultData = await response.json();
         setImage(resultData);
 
         setMessage("Image Generated Successfully");
@@ -178,12 +180,12 @@ const FrontPage = () => {
             {uploading ? "Uploading.." : "Upload"}
           </button>
 
-          <input
+          {/* <input
             type="text"
             placeholder="Create a Name..."
             value={name}
             onChange={(e) => setName(e.target.value)}
-          />
+          /> */}
 
           <input
             type="text"
