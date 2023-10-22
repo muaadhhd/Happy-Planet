@@ -1,10 +1,19 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-// import { NFTStorage, File } from "nft.storage";
+import { NFTStorage, File } from "nft.storage";
 
-// import fs from "fs";
-// import path from "path";
+// ABIs
+import NFT from "../abis/NFT.json";
+
+import {
+  useAccount,
+  useConnect,
+  useContractRead,
+  useContractWrite,
+  useNetwork,
+  useWaitForTransaction,
+} from "wagmi";
 
 const FrontPage = () => {
   //State constants
@@ -19,6 +28,32 @@ const FrontPage = () => {
   const [selectedFile, setSelectFile] = useState<File>();
 
   const [mostRecentImage, setMostRecentImage] = useState("");
+
+  const CONTRACT_ADDRESS = "0x4478dd7baaD16958B400f0C72c8bADa02b2CEa79";
+
+  //Mint Function
+  const {
+    data: mintData,
+    write: purchase,
+    isLoading: isMintLoading,
+    isSuccess: isMintStarted,
+    error: mintError,
+  } = useContractWrite({
+    address: CONTRACT_ADDRESS,
+    abi: NFT,
+    functionName: "mint",
+  });
+
+  //fetching data from API
+  async function fetchMostRecentImage() {
+    try {
+      const response = await fetch("/api/getMostRecentImage");
+      const data = await response.json();
+      setMostRecentImage(data.mostRecentImage);
+    } catch (error) {
+      console.error("Error fetching most recent image:", error);
+    }
+  }
 
   //Handles uploaded image
   const handleUpload = async () => {
@@ -38,19 +73,23 @@ const FrontPage = () => {
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (description === "") {
+    if (name === "" || description === "") {
       setMessage("Please provide a name and description");
       return;
     }
+
+    fetchMostRecentImage();
 
     // Call AI API to generate a image based on description
     const imageData = await createImage();
 
     // Upload image to IPFS (NFT.Storage)
-    // const url = await uploadImage(imageData);
+    const url = await uploadImage(imageData);
 
-    // Mint NFT
-    // await mintImage(url);
+    if (url !== undefined) {
+      // Mint NFT
+      await mintImage(url);
+    }
   };
 
   //Generates Image with AI API
@@ -59,10 +98,10 @@ const FrontPage = () => {
     const url = "http://127.0.0.1:12345";
 
     const data = {
-      userimagepath: mostRecentImage,
+      userimagepath: `/Users/muaadhm/Projects/happy_planet/frontend/userImage/${mostRecentImage}`,
       description: description,
     };
-    //NEED HELP IN THIS AREA
+
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -73,10 +112,16 @@ const FrontPage = () => {
       });
 
       if (response.status === 200) {
+        console.log(response.body);
         const resultData = await response.json();
+        const metaData = response.body;
+
+        console.log(resultData);
         setImage(resultData);
 
         setMessage("Image Generated Successfully");
+
+        return metaData;
       } else {
         console.error(`Error: ${response.status}`);
         setMessage("Image generation failed 1");
@@ -88,57 +133,46 @@ const FrontPage = () => {
   };
 
   // Uploading Image to IPFS
-  // const uploadImage = async (imageData: any) => {
-  //   setMessage("Uploading Image...");
+  const uploadImage = async (imageData: any) => {
+    setMessage("Uploading Image...");
 
-  //   // Create instance to NFT.Storage
-  //   const nftstorage = new NFTStorage({
-  //     token: process.env.REACT_APP_NFT_STORAGE_API_KEY,
-  //   });
-  // };
+    const API_KEY = process.env.NEXT_PUBLIC_NFT_STORAGE_API_KEY;
 
-  // //Mint Image
-  // const mintImage = async (tokenURI) => {
-  //   setMessage("Waiting for Mint...");
+    // Create instance to NFT.Storage
+    if (API_KEY !== undefined) {
+      console.log("success");
+      const nftStorage = new NFTStorage({ token: API_KEY });
 
-  //   //Gets signer
-  //   const signer = await provider.getSigner();
-
-  //   try {
-  //     //Minting
-  //     const transaction = await nft
-  //       .connect(signer)
-  //       .mint(tokenURI, { value: ethers.utils.parseEther("0.001") });
-
-  //     //waiting for transaction
-  //     await transaction.wait();
-  //     setIsWaiting(false);
-
-  //     //Getting NFT ID
-  //     const amount = await nft.totalSupply();
-  //     const result = parseInt(amount._hex).toString();
-  //     SetNFTID(result);
-  //   } catch (error) {
-  //     warning("Transaction Cancelled");
-  //     setIsWaiting(true);
-  //   }
-  //   setMessage("Transaction Cancelled");
-  // };
-
-  useEffect(() => {
-    //fetching data from API
-    async function fetchMostRecentImage() {
       try {
-        const response = await fetch("/api/getMostRecentImage");
-        const data = await response.json();
-        setMostRecentImage(data.mostRecentImage);
-      } catch (error) {
-        console.error("Error fetching most recent image:", error);
-      }
-    }
+        // Send request to store image
+        const metadata = await nftStorage.store({
+          image: imageData,
+          name: name,
+          description: description,
+        });
 
-    fetchMostRecentImage();
-  }, []);
+        return metadata.url;
+      } catch (error) {
+        console.error("Error while storing image:", error);
+        // Handle the error as needed, e.g., return a default value or throw a custom error.
+      }
+    } else {
+      console.error("API key is undefined. Handle this case accordingly.");
+    }
+  };
+
+  //Mint Image
+  const mintImage = async (tokenURI: string) => {
+    const transaction = async () => {
+      await purchase({
+        args: [tokenURI],
+      });
+    };
+
+    await transaction;
+  };
+
+  useEffect(() => {}, []);
 
   return (
     <div className="max-w-4xl mx-auto p-20 space-y-6">
@@ -175,12 +209,12 @@ const FrontPage = () => {
             {uploading ? "Uploading.." : "Upload"}
           </button>
 
-          {/* <input
+          <input
             type="text"
             placeholder="Create a Name..."
             value={name}
             onChange={(e) => setName(e.target.value)}
-          /> */}
+          />
 
           <input
             type="text"
@@ -201,7 +235,10 @@ const FrontPage = () => {
           <br />
           <br />
         </form>
-        <div className="card">{message}</div>
+        <div className="card">
+          {message}
+          <img src={image} alt="AI generated Img" />
+        </div>
       </div>
 
       {image && (
