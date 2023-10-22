@@ -19,4 +19,4 @@ Happy Planet trains original style AI models for artists through stable diffusio
 ### 3. Start frontend
 
 In a separate terminal execute:
-`$ npm run start`# Happy Planet
+`$ npm run dev`# Happy Planet
