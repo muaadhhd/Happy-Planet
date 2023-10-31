@@ -146,11 +146,14 @@ const FrontPage = () => {
       try {
         // Send request to store image
         const metadata = await nftStorage.store({
-          image: imageData,
+          image: new File([imageData], "my-image.png", { type: "image/png" }),
           name: name,
           description: description,
         });
 
+        console.log(`success: ${metadata.url}`);
+
+        //Return token URI
         return metadata.url;
       } catch (error) {
         console.error("Error while storing image:", error);
@@ -163,13 +166,15 @@ const FrontPage = () => {
 
   //Mint Image
   const mintImage = async (tokenURI: string) => {
+    setMessage(tokenURI);
+
     const transaction = async () => {
       await purchase({
         args: [tokenURI],
       });
     };
 
-    await transaction;
+    await transaction();
   };
 
   useEffect(() => {}, []);
@@ -237,7 +242,7 @@ const FrontPage = () => {
         </form>
         <div className="card">
           {message}
-          <img src={image} alt="AI generated Img" />
+          {/* <img src={image} alt="AI generated Img" /> */}
         </div>
       </div>
 

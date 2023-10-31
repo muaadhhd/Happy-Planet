@@ -30,9 +30,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
     zora,
     goerli,
     sepolia,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true"
-      ? [goerli, sepolia]
-      : []),
+    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [sepolia] : []),
   ],
   [publicProvider()]
 );
