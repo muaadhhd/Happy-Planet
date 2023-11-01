@@ -1,7 +1,10 @@
+import Image from "next/image";
+
 import { useState, useEffect } from "react";
 import axios from "axios";
 
 import { NFTStorage, File } from "nft.storage";
+import { parseEther } from "ethers";
 
 // ABIs
 import NFT from "../abis/NFT.json";
@@ -21,6 +24,7 @@ const FrontPage = () => {
   const [description, setDescription] = useState("");
   const [name, setName] = useState("");
   const [image, setImage] = useState<any | null>(null);
+  const [backendData, setBackendData] = useState<any | null>(null);
 
   //uploading image constants
   const [uploading, setUploading] = useState(false);
@@ -83,12 +87,14 @@ const FrontPage = () => {
     // Call AI API to generate a image based on description
     const imageData = await createImage();
 
-    // Upload image to IPFS (NFT.Storage)
-    const url = await uploadImage(imageData);
+    if (imageData !== null) {
+      // Upload image to IPFS (NFT.Storage)
+      const url = await uploadImage(imageData);
 
-    if (url !== undefined) {
-      // Mint NFT
-      await mintImage(url);
+      if (url !== undefined) {
+        // Mint NFT
+        await mintImage(url);
+      }
     }
   };
 
@@ -117,18 +123,30 @@ const FrontPage = () => {
         const metaData = response.body;
 
         console.log(resultData);
-        setImage(resultData);
+        console.log(metaData);
+
+        const relativePath = resultData.aiimagepath.replace(
+          "/Users/muaadhm/Projects/happy_planet/frontend/public",
+          ""
+        );
+
+        console.log(relativePath);
+
+        setBackendData(resultData);
+        setImage(relativePath);
 
         setMessage("Image Generated Successfully");
 
         return metaData;
       } else {
         console.error(`Error: ${response.status}`);
-        setMessage("Image generation failed 1");
+        setMessage("Image generation failed 1, Try again");
+        return null;
       }
     } catch (err) {
       console.error("Error:", err);
-      setMessage("Image generation failed 2");
+      setMessage("Image generation failed 2, Try again");
+      return null;
     }
   };
 
@@ -166,18 +184,17 @@ const FrontPage = () => {
 
   //Mint Image
   const mintImage = async (tokenURI: string) => {
-    setMessage(tokenURI);
-
     const transaction = async () => {
-      await purchase({
+      purchase({
         args: [tokenURI],
+        value: parseEther("1"),
       });
     };
 
     await transaction();
   };
 
-  useEffect(() => {}, []);
+  // useEffect(() => {}, []);
 
   return (
     <div className="max-w-4xl mx-auto p-20 space-y-6">
@@ -242,18 +259,23 @@ const FrontPage = () => {
         </form>
         <div className="card">
           {message}
-          {/* <img src={image} alt="AI generated Img" /> */}
+          <Image
+            alt="My Image"
+            src="/aiImage/IMG_0754.jpg" // Path relative to the 'public' directory
+            width={300} // Set the desired width
+            height={200} // Set the desired height
+          />
         </div>
       </div>
 
-      {image && (
+      {backendData && (
         <div className="text-white">
           <br />
           <br />
           <br />
           <br />
           <h3>Response from Backend:</h3>
-          <pre>{JSON.stringify(image, null, 2)}</pre>
+          <pre>{JSON.stringify(backendData, null, 2)}</pre>
         </div>
       )}
     </div>
