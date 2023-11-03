@@ -125,19 +125,24 @@ const FrontPage = () => {
         console.log(resultData);
         console.log(metaData);
 
+        //Converting to Relative path to AI image so we can render it to the frontend
         const relativePath = resultData.aiimagepath.replace(
           "/Users/muaadhm/Projects/happy_planet/frontend/public",
           ""
         );
-
-        console.log(relativePath);
-
-        setBackendData(resultData);
+        //setting the AI Image to the front end
         setImage(relativePath);
+
+        //Backend Data
+        setBackendData(resultData);
 
         setMessage("Image Generated Successfully");
 
-        return metaData;
+        //Path of the AI image
+        const imageData = resultData.aiimagepath;
+        console.log(imageData);
+
+        return imageData;
       } else {
         console.error(`Error: ${response.status}`);
         setMessage("Image generation failed 1, Try again");
@@ -164,7 +169,8 @@ const FrontPage = () => {
       try {
         // Send request to store image
         const metadata = await nftStorage.store({
-          image: new File([imageData], "my-image.png", { type: "image/png" }),
+          //Changed "my-Image.png" to `${name}.png` to have the same name as the user's inputted name
+          image: new File([imageData], `${name}.png`, { type: "image/png" }),
           name: name,
           description: description,
         });
@@ -194,7 +200,13 @@ const FrontPage = () => {
     await transaction();
   };
 
-  // useEffect(() => {}, []);
+  useEffect(() => {
+    // This effect will run whenever the `image` state changes
+    if (image) {
+      // If `image` is not null, it means there's a new image, and you can update the <Image /> component.
+      // You might want to add additional logic here if needed.
+    }
+  }, [image]);
 
   return (
     <div className="max-w-4xl mx-auto p-20 space-y-6">
@@ -258,16 +270,19 @@ const FrontPage = () => {
           <br />
         </form>
         <div className="card">
-          {message}
-          <Image
-            alt="My Image"
-            src="/aiImage/IMG_0754.jpg" // Path relative to the 'public' directory
-            width={300} // Set the desired width
-            height={200} // Set the desired height
-          />
+          {image ? (
+            <Image
+              alt="My Image"
+              src={image} // Path relative to the 'public' directory
+              width={300} // Set the desired width
+              height={200} // Set the desired height
+            />
+          ) : (
+            <span></span>
+          )}
         </div>
       </div>
-
+      <p> {message}</p>
       {backendData && (
         <div className="text-white">
           <br />
