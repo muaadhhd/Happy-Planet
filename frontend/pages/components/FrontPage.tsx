@@ -156,7 +156,7 @@ const FrontPage = () => {
   };
 
   // Uploading Image to IPFS
-  const uploadImage = async (imageData: any) => {
+  const uploadImage = async (imageData: ArrayBuffer) => {
     setMessage("Uploading Image...");
 
     const API_KEY = process.env.NEXT_PUBLIC_NFT_STORAGE_API_KEY;
@@ -168,17 +168,21 @@ const FrontPage = () => {
 
       try {
         // Send request to store image
-        const metadata = await nftStorage.store({
+        const metaData = await nftStorage.store({
           //Changed "my-Image.png" to `${name}.png` to have the same name as the user's inputted name
-          image: new File([imageData], `${name}.png`, { type: "image/png" }),
+          image: new File(
+            [new Blob([imageData], { type: "image/png" })],
+            `${name}.png`,
+            { type: "image/png" }
+          ),
           name: name,
           description: description,
         });
 
-        console.log(`success: ${metadata.url}`);
+        console.log(`success: ${metaData.url}`);
 
         //Return token URI
-        return metadata.url;
+        return metaData.url;
       } catch (error) {
         console.error("Error while storing image:", error);
         // Handle the error as needed, e.g., return a default value or throw a custom error.
