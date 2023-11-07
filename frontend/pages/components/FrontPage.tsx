@@ -85,15 +85,12 @@ const FrontPage = () => {
     fetchMostRecentImage();
 
     // Call AI API to generate a image based on description
-    const imageData = await createImage();
+    const tokenUri = await createImage();
 
-    if (imageData !== null) {
-      // Upload image to IPFS (NFT.Storage)
-      const url = await uploadImage(imageData);
-
-      if (url !== undefined) {
+    if (tokenUri !== null) {
+      if (tokenUri !== undefined) {
         // Mint NFT
-        await mintImage(url);
+        await mintImage(tokenUri);
       }
     }
   };
@@ -104,7 +101,7 @@ const FrontPage = () => {
     const url = "http://127.0.0.1:12345";
 
     const data = {
-      userimagepath: `/Users/muaadhm/Projects/happy_planet/frontend/userImage/${mostRecentImage}`,
+      userimagepath: `/Users/hosanna/hackathon/online2023-ethglobal/Happy-Planet/frontend/userImage/${mostRecentImage}`,
       description: description,
     };
 
@@ -127,7 +124,7 @@ const FrontPage = () => {
 
         //Converting to Relative path to AI image so we can render it to the frontend
         const relativePath = resultData.aiimagepath.replace(
-          "/Users/muaadhm/Projects/happy_planet/frontend/public",
+          "/Users/hosanna/hackathon/online2023-ethglobal/Happy-Planet/frontend/public",
           ""
         );
         //setting the AI Image to the front end
@@ -139,10 +136,11 @@ const FrontPage = () => {
         setMessage("Image Generated Successfully");
 
         //Path of the AI image
-        const imageData = resultData.aiimagepath;
-        console.log(imageData);
+        const ipnft = resultData.ipnft; // Image address received after uploading NFT to IPFS
+        const tokenUri = resultData.url; // Metadata address received after uploading NFT to IPFS
+        console.log(tokenUri, ipnft);
 
-        return imageData;
+        return tokenUri;
       } else {
         console.error(`Error: ${response.status}`);
         setMessage("Image generation failed 1, Try again");
@@ -152,43 +150,6 @@ const FrontPage = () => {
       console.error("Error:", err);
       setMessage("Image generation failed 2, Try again");
       return null;
-    }
-  };
-
-  // Uploading Image to IPFS
-  const uploadImage = async (imageData: ArrayBuffer) => {
-    setMessage("Uploading Image...");
-
-    const API_KEY = process.env.NEXT_PUBLIC_NFT_STORAGE_API_KEY;
-
-    // Create instance to NFT.Storage
-    if (API_KEY !== undefined) {
-      console.log("success");
-      const nftStorage = new NFTStorage({ token: API_KEY });
-
-      try {
-        // Send request to store image
-        const metaData = await nftStorage.store({
-          //Changed "my-Image.png" to `${name}.png` to have the same name as the user's inputted name
-          image: new File(
-            [new Blob([imageData], { type: "image/png" })],
-            `${name}.png`,
-            { type: "image/png" }
-          ),
-          name: name,
-          description: description,
-        });
-
-        console.log(`success: ${metaData.url}`);
-
-        //Return token URI
-        return metaData.url;
-      } catch (error) {
-        console.error("Error while storing image:", error);
-        // Handle the error as needed, e.g., return a default value or throw a custom error.
-      }
-    } else {
-      console.error("API key is undefined. Handle this case accordingly.");
     }
   };
 
@@ -230,7 +191,8 @@ const FrontPage = () => {
             />
             <div
               className="w-40 aspect-video rounded flex items-center justify-center
-          border-2 border-dashed cursor-pointer text-white">
+          border-2 border-dashed cursor-pointer text-white"
+            >
               {selectedImage ? (
                 <img src={selectedImage} alt=""></img>
               ) : (
@@ -243,7 +205,8 @@ const FrontPage = () => {
             onClick={handleUpload}
             disabled={uploading}
             style={{ opacity: uploading ? ".5" : "1" }}
-            className="bg-red-600 p-3 w-32 text-center rounded-full text-white">
+            className="bg-red-600 p-3 w-32 text-center rounded-full text-white"
+          >
             {uploading ? "Uploading.." : "Upload"}
           </button>
 
