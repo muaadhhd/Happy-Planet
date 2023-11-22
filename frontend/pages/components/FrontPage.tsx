@@ -98,7 +98,7 @@ const FrontPage = () => {
     const url = "http://127.0.0.1:12345";
 
     const data = {
-      userimagepath: `/Users/hosanna/hackathon/online2023-ethglobal/Happy-Planet-v2/frontend/userImage/${mostRecentImage}`,
+      userimagepath: `/Users/hosanna/hackathon/online2023-ethglobal/Happy-Planet-v4/frontend/userImage/${mostRecentImage}`,
       description: description,
     };
 
@@ -121,7 +121,7 @@ const FrontPage = () => {
 
         //Converting to Relative path to AI image so we can render it to the frontend
         const relativePath = resultData.aiimagepath.replace(
-          "/Users/hosanna/hackathon/online2023-ethglobal/Happy-Planet-v2/frontend/public",
+          "/Users/hosanna/hackathon/online2023-ethglobal/Happy-Planet-v4/frontend/public",
           ""
         );
         //setting the AI Image to the front end
