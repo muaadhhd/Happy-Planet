@@ -1,4 +1,4 @@
-# CrossChain-AI-NFT-Generator
+# CrossChain AI NFT Generator
 
 # Project Description
 CrossChain AI NFT Generator trains original style AI models for artists through stable diffusion. Users can choose different artist styles to purchase avatars in Happy Planet. The avatar will be stored on IPFS as a decentralized NFT. Happy Planet showcases outstanding avatar works and allows users to trade them. Happy Planet also provides users with the token Vendor service. Users can exchange ERC20 tokens through ETH to mint avatars or give them to others.
