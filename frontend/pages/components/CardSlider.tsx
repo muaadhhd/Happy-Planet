@@ -8,7 +8,7 @@ import Image from "next/image";
 interface Car {
   id: number;
   name: string;
-  description: string;
+  style: string;
   image: string;
 }
 
@@ -54,9 +54,11 @@ const CardSlider: React.FC<CarSliderProps> = ({ cars }) => {
         {cars.map((car) => (
           <div key={car.id} className={styles["car-card"]}>
             {/* Use next/image for optimized image loading */}
+            <p className="p-2">
+              <strong>Style:</strong> {car.style}
+            </p>
             <Image src={car.image} alt={car.name} width={500} height={300} />
-            <h3>{car.name}</h3>
-            <p>{car.description}</p>
+            {/* <h3>Name:{car.name}</h3> */}
           </div>
         ))}
       </Slider>

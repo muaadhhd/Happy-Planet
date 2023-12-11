@@ -6,19 +6,19 @@ const Mint = () => {
     {
       id: 1,
       name: "Car 1",
-      description: "Description for Car 1",
+      style: "y00ts",
       image: "/../picures/pic1.png",
     },
     {
       id: 2,
       name: "Car 2",
-      description: "Description for Car 2",
+      style: "3d Deadfelaz",
       image: "/../picures/pic2.png",
     },
     {
       id: 3,
       name: "Car 3",
-      description: "Description for Car 2",
+      style: "moonbirds",
       image: "/../picures/pic3.png",
     },
     // Add more cars as needed

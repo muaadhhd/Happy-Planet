@@ -4,7 +4,8 @@ import styles from "../styles/Home.module.css";
 
 //Components
 import Navigation from "./components/Navigation";
-import FrontPage from "./components/FrontPage";
+import HomePage from "./components/HomePage";
+import Footer from "./components/Footer";
 
 const Home: NextPage = () => {
   return (
@@ -19,7 +20,8 @@ const Home: NextPage = () => {
       </Head>
 
       <Navigation />
-      <FrontPage />
+      <HomePage />
+      <Footer />
     </div>
   );
 };
