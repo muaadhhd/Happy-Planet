@@ -1,0 +1,28 @@
+/* CardSlider.module.css */
+.slider-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+.img-class {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+.car-card {
+  background-color: white;
+  position: relative;
+  padding: 40px;
+  border: 1px solid #ffdf00;
+  text-align: center;
+  transition: transform 0.3s ease;
+  max-width: 300px; /* Adjust as needed */
+  margin: 0 auto; /* Center horizontally */
+}
+
+.car-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
